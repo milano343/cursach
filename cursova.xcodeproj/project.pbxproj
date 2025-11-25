@@ -45,6 +45,11 @@
 			path = cursovaUITests;
 			sourceTree = "<group>";
 		};
+		A182DE562ED5A56100EF3ECC /* New Folder */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "New Folder";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +83,7 @@
 				A182DE132ED5A12C00EF3ECC /* cursova */,
 				A182DE212ED5A12E00EF3ECC /* cursovaTests */,
 				A182DE2B2ED5A12E00EF3ECC /* cursovaUITests */,
+				A182DE562ED5A56100EF3ECC /* New Folder */,
 				A182DE122ED5A12C00EF3ECC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -155,6 +161,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A182DE2B2ED5A12E00EF3ECC /* cursovaUITests */,
+				A182DE562ED5A56100EF3ECC /* New Folder */,
 			);
 			name = cursovaUITests;
 			packageProductDependencies = (
