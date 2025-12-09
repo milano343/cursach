@@ -29,9 +29,22 @@
 		A182DE282ED5A12E00EF3ECC /* cursovaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = cursovaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A17F32122EDEE1C000BE224B /* Exceptions for "cursova" folder in "cursova" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A182DE102ED5A12C00EF3ECC /* cursova */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A182DE132ED5A12C00EF3ECC /* cursova */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A17F32122EDEE1C000BE224B /* Exceptions for "cursova" folder in "cursova" target */,
+			);
 			path = cursova;
 			sourceTree = "<group>";
 		};
@@ -404,6 +417,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = cursova/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Privacy - Location When In Use Usage Description";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -435,6 +450,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = cursova/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Privacy - Location When In Use Usage Description";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

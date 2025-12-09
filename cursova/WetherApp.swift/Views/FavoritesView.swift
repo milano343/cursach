@@ -19,8 +19,8 @@ struct FavoritesView: View {
                             onSelect(city)
                         } label: {
                             HStack {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
+                                Image(systemName: "heart.fill")
+                                    .foregroundColor(.red)
 
                                 Text(city)
                                     .font(.title3)
