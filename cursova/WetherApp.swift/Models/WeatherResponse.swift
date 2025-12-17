@@ -6,8 +6,9 @@ struct WeatherResponse: Codable {
     let main: MainWeather
 }
 
-struct WeatherCondition: Codable {
+struct WeatherCondition: Codable{
     let description: String
+    let main: String
     let icon: String
 }
 

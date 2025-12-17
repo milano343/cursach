@@ -8,12 +8,15 @@ struct ContentView: View {
 
     @State private var city: String = ""
     @State private var isLoading: Bool = false
+    @State private var hasLoadedInitialLocation = false 
+    @State private var citySuggestions: [String] = []
+    @State private var showSuggestions: Bool = false
 
     var body: some View {
         NavigationStack {
             GeometryReader { geo in
                 ZStack {
-                    // ===== ФОН =====
+                    // ФОН
                     LinearGradient(
                         gradient: Gradient(colors: [
                             Color(red: 0/255, green: 70/255, blue: 200/255),
@@ -51,6 +54,8 @@ struct ContentView: View {
                             //  МОЯ ЛОКАЦІЯ
                             Button {
                                 locationManager.requestLocation()
+                                // Дозволяємо наступне оновлення локації
+                                hasLoadedInitialLocation = false
                             } label: {
                                 HStack {
                                     Image(systemName: "location.fill")
@@ -65,28 +70,63 @@ struct ContentView: View {
                             .padding(.horizontal)
                             .onReceive(locationManager.$city) { newCity in
                                 guard !newCity.isEmpty else { return }
-                                city = newCity
-                                loadWeather()
+                                // Завантажуємо тільки якщо це перший раз або користувач натиснув кнопку
+                                if !hasLoadedInitialLocation {
+                                    city = newCity
+                                    loadWeather()
+                                    hasLoadedInitialLocation = true
+                                }
                             }
 
                             //ПОШУК
-                            HStack {
-                                TextField("Введіть місто...", text: $city)
-                                    .padding()
-                                    .background(Color.white.opacity(0.3))
-                                    .cornerRadius(14)
-                                    .foregroundColor(.white)
-                                    .accentColor(.white)
-
-                                Button {
-                                    loadWeather()
-                                } label: {
-                                    Image(systemName: "magnifyingglass")
-                                        .font(.title2)
-                                        .padding(12)
-                                        .background(Color.blue.opacity(0.85))
-                                        .foregroundColor(.white)
+                            VStack(alignment: .leading, spacing: 0) {
+                                HStack {
+                                    TextField("Введіть місто...", text: $city)
+                                        .padding()
+                                        .background(Color.white.opacity(0.3))
                                         .cornerRadius(14)
+                                        .foregroundColor(.white)
+                                        .accentColor(.white)
+                                        .onChange(of: city) { newValue in
+                                            updateSuggestions(for: newValue)
+                                        }
+
+                                    Button {
+                                        showSuggestions = false
+                                        loadWeather()
+                                    } label: {
+                                        Image(systemName: "magnifyingglass")
+                                            .font(.title2)
+                                            .padding(12)
+                                            .background(Color.blue.opacity(0.85))
+                                            .foregroundColor(.white)
+                                            .cornerRadius(14)
+                                    }
+                                }
+                                
+                                // Підказки міст
+                                if showSuggestions && !citySuggestions.isEmpty {
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        ForEach(citySuggestions, id: \.self) { suggestion in
+                                            Button {
+                                                city = suggestion
+                                                showSuggestions = false
+                                                loadWeather()
+                                            } label: {
+                                                Text(suggestion)
+                                                    .foregroundColor(.primary)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                                    .padding()
+                                            }
+                                            .background(Color.white.opacity(0.95))
+                                            
+                                            if suggestion != citySuggestions.last {
+                                                Divider()
+                                            }
+                                        }
+                                    }
+                                    .cornerRadius(14)
+                                    .shadow(radius: 3)
                                 }
                             }
                             .padding(.horizontal)
@@ -123,7 +163,7 @@ struct ContentView: View {
                                         .minimumScaleFactor(0.5)
                                         .lineLimit(1)
 
-                                    Text(w.weather.first?.description.capitalized ?? "")
+                                    Text(translateWeather(w.weather.first?.description ?? ""))
                                         .font(.title3)
                                         .foregroundColor(.gray)
 
@@ -163,11 +203,15 @@ struct ContentView: View {
                                                     .font(.caption)
                                                     .foregroundColor(.gray)
 
+                                                Image(systemName: weatherIcon(for: item.weather.first?.main ?? ""))
+                                                    .font(.title)
+                                                    .foregroundColor(.blue)
+
                                                 Text("\(Int(item.main.temp))°C")
                                                     .font(.title3)
                                                     .fontWeight(.semibold)
 
-                                                Text(item.weather.first?.description ?? "")
+                                                Text(translateWeather(item.weather.first?.description ?? ""))
                                                     .font(.caption)
                                                     .foregroundColor(.gray)
                                                     .multilineTextAlignment(.center)
@@ -202,13 +246,16 @@ struct ContentView: View {
                     }
                 }
                 .onAppear {
-                    locationManager.requestLocation()
+                    // Завантажуємо локацію тільки при першому відкритті
+                    if !hasLoadedInitialLocation {
+                        locationManager.requestLocation()
+                    }
                 }
             }
         }
     }
 
-    // ===== ФУНКЦІЇ =====
+    // ФУНКЦІЇ 
     func loadWeather() {
         guard !city.isEmpty else { return }
         vm.errorMessage = nil
@@ -226,5 +273,85 @@ struct ContentView: View {
         formatter.dateFormat = "dd.MM HH:mm"
         return formatter.string(from: date)
     }
+    
+    func weatherIcon(for condition: String) -> String {
+        switch condition.lowercased() {
+        case "clear":
+            return "sun.max.fill"
+        case "clouds":
+            return "cloud.fill"
+        case "rain":
+            return "cloud.rain.fill"
+        case "drizzle":
+            return "cloud.drizzle.fill"
+        case "thunderstorm":
+            return "cloud.bolt.rain.fill"
+        case "snow":
+            return "cloud.snow.fill"
+        case "mist", "fog", "haze":
+            return "cloud.fog.fill"
+        case "smoke":
+            return "smoke.fill"
+        case "dust", "sand":
+            return "sun.dust.fill"
+        case "ash":
+            return "cloud.fill"
+        case "squall":
+            return "wind"
+        case "tornado":
+            return "tornado"
+        default:
+            return "cloud.fill"
+        }
+    }
+    
+    func updateSuggestions(for query: String) {
+        guard query.count >= 2 else {
+            citySuggestions = []
+            showSuggestions = false
+            return
+        }
+        
+        let ukrainianCities = [
+            "Київ", "Харків", "Одеса", "Дніпро", "Донецьк", "Запоріжжя",
+            "Львів", "Кривий Ріг", "Миколаїв", "Маріуполь", "Луганськ",
+            "Вінниця", "Макіївка", "Херсон", "Полтава", "Чернігів",
+            "Черкаси", "Суми", "Житомир", "Хмельницький", "Чернівці",
+            "Рівне", "Тернопіль", "Івано-Франківськ", "Луцьк", "Ужгород"
+        ]
+        
+        let filtered = ukrainianCities.filter { city in
+            city.lowercased().hasPrefix(query.lowercased())
+        }
+        
+        citySuggestions = Array(filtered.prefix(5))
+        showSuggestions = !citySuggestions.isEmpty
+    }
+    
+    func translateWeather(_ description: String) -> String {
+        let translations: [String: String] = [
+            "clear sky": "ясне небо",
+            "few clouds": "невелика хмарність",
+            "scattered clouds": "розсіяні хмари",
+            "broken clouds": "хмарно",
+            "overcast clouds": "похмуро",
+            "shower rain": "зливовий дощ",
+            "rain": "дощ",
+            "light rain": "невеликий дощ",
+            "moderate rain": "помірний дощ",
+            "heavy intensity rain": "сильний дощ",
+            "thunderstorm": "гроза",
+            "snow": "сніг",
+            "light snow": "невеликий сніг",
+            "mist": "імла",
+            "fog": "туман",
+            "haze": "серпанок",
+            "smoke": "дим",
+            "dust": "пил",
+            "sand": "пісок",
+            "drizzle": "мряка"
+        ]
+        
+        return translations[description.lowercased()] ?? description.capitalized
+    }
 }
-
